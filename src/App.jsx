@@ -6,6 +6,7 @@ import {
   useSession,
   CombinedDataProvider,
 } from "@inrupt/solid-ui-react";
+import AddTodo from "./components/AddTodo";
 import "./App.css";
 
 const authOptions = {
@@ -31,6 +32,9 @@ function App() {
             />
             <LogoutButton />
           </div>
+          <section>
+            <AddTodo />
+          </section>
         </CombinedDataProvider>
       ) : (
         <div className="message">
