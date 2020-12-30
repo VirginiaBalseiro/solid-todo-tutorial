@@ -1,0 +1,38 @@
+.table-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 30px;
+}
+
+.table {
+  margin: 50px;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-transform: uppercase;
+  font-weight: bold;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.table tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.delete-button {
+  border: none;
+  background: none;
+  color: #f44336;
+  text-decoration: underline;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.tasks-message {
+  font-size: 16px;
+  font-weight: bold;
+}

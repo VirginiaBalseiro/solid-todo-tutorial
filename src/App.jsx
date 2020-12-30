@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   LoginButton,
   LogoutButton,
@@ -6,8 +6,13 @@ import {
   useSession,
   CombinedDataProvider,
 } from "@inrupt/solid-ui-react";
+import { getSolidDataset, getUrlAll, getThing } from "@inrupt/solid-client";
 import AddTodo from "./components/AddTodo";
+import TodoList from "./components/TodoList";
+import { getOrCreateTodoList } from "./utils";
 import "./App.css";
+
+const STORAGE_PREDICATE = "http://www.w3.org/ns/pim/space#storage";
 
 const authOptions = {
   clientName: "Solid Todo App",
@@ -15,6 +20,23 @@ const authOptions = {
 
 function App() {
   const { session } = useSession();
+  const [todoList, setTodoList] = useState();
+
+  useEffect(() => {
+    if (!session || !session.info.isLoggedIn) return;
+    (async () => {
+      const profileDataset = await getSolidDataset(session.info.webId, {
+        fetch: session.fetch,
+      });
+      const profileThing = getThing(profileDataset, session.info.webId);
+      const podsUrls = getUrlAll(profileThing, STORAGE_PREDICATE);
+      const pod = podsUrls[0];
+      const containerUri = `${pod}todos/`;
+      const list = await getOrCreateTodoList(containerUri, session.fetch);
+      setTodoList(list);
+    })();
+  }, [session, session.info.isLoggedIn]);
+
   return (
     <div className="app-container">
       {session.info.isLoggedIn ? (
@@ -33,7 +55,8 @@ function App() {
             <LogoutButton />
           </div>
           <section>
-            <AddTodo />
+            <AddTodo todoList={todoList} setTodoList={setTodoList} />
+            <TodoList todoList={todoList} setTodoList={setTodoList} />
           </section>
         </CombinedDataProvider>
       ) : (
