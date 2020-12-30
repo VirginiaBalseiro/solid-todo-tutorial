@@ -1,13 +1,66 @@
+import {
+  addDatetime,
+  getDatetime,
+  getSourceUrl,
+  getThingAll,
+  getUrl,
+  removeDatetime,
+  saveSolidDatasetAt,
+  setThing,
+} from "@inrupt/solid-client";
+import {
+  Table,
+  TableColumn,
+  useThing,
+  useSession,
+} from "@inrupt/solid-ui-react";
 import React from "react";
-import { getThingAll, getUrl } from "@inrupt/solid-client";
-import { Table, TableColumn } from "@inrupt/solid-ui-react";
 import "./style.css";
 
-function TodoList({ todoList }) {
-  const todoThings = todoList ? getThingAll(todoList) : [];
+const TEXT_PREDICATE = "http://schema.org/text";
+const CREATED_PREDICATE = "http://www.w3.org/2002/12/cal/ical#created";
+const COMPLETED_PREDICATE = "http://www.w3.org/2002/12/cal/ical#completed";
 
-  const TEXT_PREDICATE = "http://schema.org/text";
-  const CREATED_PREDICATE = "http://www.w3.org/2002/12/cal/ical#created";
+function CompletedBody({ checked, handleCheck }) {
+  const { thing } = useThing();
+  return (
+    <label>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={() => handleCheck(thing, checked)}
+      />
+    </label>
+  );
+}
+
+function TodoList({ todoList, setTodoList }) {
+  const todoThings = todoList ? getThingAll(todoList) : [];
+  todoThings.sort((a, b) => {
+    return (
+      getDatetime(a, CREATED_PREDICATE) - getDatetime(b, CREATED_PREDICATE)
+    );
+  });
+
+  const { fetch } = useSession();
+
+  const handleCheck = async (todo, checked) => {
+    const todosUrl = getSourceUrl(todoList);
+    let updatedTodos;
+    if (!checked) {
+      const date = new Date();
+      const doneTodo = addDatetime(todo, COMPLETED_PREDICATE, date);
+      updatedTodos = setThing(todoList, doneTodo, { fetch });
+    } else {
+      const date = getDatetime(todo, COMPLETED_PREDICATE);
+      const undoneTodo = removeDatetime(todo, COMPLETED_PREDICATE, date);
+      updatedTodos = setThing(todoList, undoneTodo, { fetch });
+    }
+    const updatedList = await saveSolidDatasetAt(todosUrl, updatedTodos, {
+      fetch,
+    });
+    setTodoList(updatedList);
+  };
 
   const thingsArray = todoThings
     .filter(
@@ -18,7 +71,6 @@ function TodoList({ todoList }) {
     .map((t) => {
       return { dataset: todoList, thing: t };
     });
-
   if (!thingsArray.length) return null;
 
   return (
@@ -27,12 +79,21 @@ function TodoList({ todoList }) {
         Your to-do list has {thingsArray.length} items
       </span>
       <Table className="table" things={thingsArray}>
-        <TableColumn property={TEXT_PREDICATE} header="" />
+        <TableColumn property={TEXT_PREDICATE} header="To Do" sortable />
         <TableColumn
           property={CREATED_PREDICATE}
           dataType="datetime"
           header="Created At"
           body={({ value }) => value.toDateString()}
+          sortable
+        />
+        <TableColumn
+          property={COMPLETED_PREDICATE}
+          dataType="datetime"
+          header="Done"
+          body={({ value }) => (
+            <CompletedBody checked={Boolean(value)} handleCheck={handleCheck} />
+          )}
         />
       </Table>
     </div>
