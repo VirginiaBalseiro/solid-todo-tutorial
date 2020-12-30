@@ -5,6 +5,7 @@ import {
   getThingAll,
   getUrl,
   removeDatetime,
+  removeThing,
   saveSolidDatasetAt,
   setThing,
 } from "@inrupt/solid-client";
@@ -34,6 +35,15 @@ function CompletedBody({ checked, handleCheck }) {
   );
 }
 
+function DeleteButton({ deleteTodo }) {
+  const { thing } = useThing();
+  return (
+    <button className="delete-button" onClick={() => deleteTodo(thing)}>
+      Delete
+    </button>
+  );
+}
+
 function TodoList({ todoList, setTodoList }) {
   const todoThings = todoList ? getThingAll(todoList) : [];
   todoThings.sort((a, b) => {
@@ -43,6 +53,15 @@ function TodoList({ todoList, setTodoList }) {
   });
 
   const { fetch } = useSession();
+
+  const deleteTodo = async (todo) => {
+    const todosUrl = getSourceUrl(todoList);
+    const updatedTodos = removeThing(todoList, todo);
+    const updatedDataset = await saveSolidDatasetAt(todosUrl, updatedTodos, {
+      fetch,
+    });
+    setTodoList(updatedDataset);
+  };
 
   const handleCheck = async (todo, checked) => {
     const todosUrl = getSourceUrl(todoList);
@@ -94,6 +113,11 @@ function TodoList({ todoList, setTodoList }) {
           body={({ value }) => (
             <CompletedBody checked={Boolean(value)} handleCheck={handleCheck} />
           )}
+        />
+        <TableColumn
+          property={TEXT_PREDICATE}
+          header=""
+          body={() => <DeleteButton deleteTodo={deleteTodo} />}
         />
       </Table>
     </div>
