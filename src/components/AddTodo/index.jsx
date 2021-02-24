@@ -1,6 +1,7 @@
 import {
   addDatetime,
   addStringNoLocale,
+  addUrl,
   createThing,
   getSourceUrl,
   saveSolidDatasetAt,
@@ -12,6 +13,8 @@ import "./style.css";
 
 const TEXT_PREDICATE = "http://schema.org/text";
 const CREATED_PREDICATE = "http://www.w3.org/2002/12/cal/ical#created";
+const TODO_TYPE_URL = "http://www.w3.org/2002/12/cal/ical#Vtodo";
+const TYPE_URL = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 function AddTodo({ todoList, setTodoList }) {
   const { session } = useSession();
@@ -25,7 +28,8 @@ function AddTodo({ todoList, setTodoList }) {
       CREATED_PREDICATE,
       new Date()
     );
-    const updatedTodoList = setThing(todoList, todoWithDate);
+    const todoWithType = addUrl(todoWithDate, TYPE_URL, TODO_TYPE_URL);
+    const updatedTodoList = setThing(todoList, todoWithType);
     const updatedDataset = await saveSolidDatasetAt(indexUrl, updatedTodoList, {
       fetch: session.fetch,
     });
