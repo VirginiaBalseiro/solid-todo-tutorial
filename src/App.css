@@ -6,6 +6,11 @@
   text-align: center;
 }
 
+.oidc-issuer-input {
+  width: 12rem;
+  margin: 0.4rem;
+}
+
 .message {
   display: flex;
   flex-direction: column;

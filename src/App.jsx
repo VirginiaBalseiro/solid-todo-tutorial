@@ -21,6 +21,11 @@ const authOptions = {
 function App() {
   const { session } = useSession();
   const [todoList, setTodoList] = useState();
+  const [oidcIssuer, setOidcIssuer] = useState("");
+
+  const handleChange = (event) => {
+    setOidcIssuer(event.target.value);
+  };
 
   useEffect(() => {
     if (!session || !session.info.isLoggedIn) return;
@@ -62,8 +67,23 @@ function App() {
       ) : (
         <div className="message">
           <span>You are not logged in. </span>
+          <span>
+            Log in with:
+            <input
+              className="oidc-issuer-input "
+              type="text"
+              name="oidcIssuer"
+              list="providers"
+              value={oidcIssuer}
+              onChange={handleChange}
+            />
+          </span>
+          <datalist id="providers">
+            <option value="https://broker.pod.inrupt.com/" />
+            <option value="https://inrupt.net/" />
+          </datalist>
           <LoginButton
-            oidcIssuer="https://broker.pod.inrupt.com/"
+            oidcIssuer={oidcIssuer}
             redirectUrl={window.location.href}
             authOptions={authOptions}
           />
