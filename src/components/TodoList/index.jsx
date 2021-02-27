@@ -21,8 +21,8 @@ import "./style.css";
 const TEXT_PREDICATE = "http://schema.org/text";
 const CREATED_PREDICATE = "http://www.w3.org/2002/12/cal/ical#created";
 const COMPLETED_PREDICATE = "http://www.w3.org/2002/12/cal/ical#completed";
-const TODO_TYPE_URL = "http://www.w3.org/2002/12/cal/ical#Vtodo";
-const TYPE_URL = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+const TODO_CLASS = "http://www.w3.org/2002/12/cal/ical#Vtodo";
+const TYPE_PREDICATE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 function CompletedBody({ checked, handleCheck }) {
   const { thing } = useThing();
@@ -84,7 +84,7 @@ function TodoList({ todoList, setTodoList }) {
   };
 
   const thingsArray = todoThings
-    .filter((t) => getUrl(t, TYPE_URL) === TODO_TYPE_URL)
+    .filter((t) => getUrl(t, TYPE_PREDICATE) === TODO_CLASS)
     .map((t) => {
       return { dataset: todoList, thing: t };
     });
