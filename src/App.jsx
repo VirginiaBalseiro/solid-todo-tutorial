@@ -77,11 +77,11 @@ function App() {
               value={oidcIssuer}
               onChange={handleChange}
             />
+            <datalist id="providers">
+              <option value="https://broker.pod.inrupt.com/" />
+              <option value="https://inrupt.net/" />
+            </datalist>
           </span>
-          <datalist id="providers">
-            <option value="https://broker.pod.inrupt.com/" />
-            <option value="https://inrupt.net/" />
-          </datalist>
           <LoginButton
             oidcIssuer={oidcIssuer}
             redirectUrl={window.location.href}
